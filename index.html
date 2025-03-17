@@ -18,6 +18,7 @@
             margin-top: 20px;
             max-width: 100%;
             height: auto;
+            display: none;
         }
     </style>
 </head>
@@ -25,7 +26,7 @@
     <h1>Selfie with Us</h1>
     <video id="video" autoplay></video>
     <canvas id="canvas"></canvas>
-    <button id="selfieButton">Take Selfie</button>
+    <button id="selfieButton">Open Camera and Take Selfie</button>
     <img id="capturedImage" src="" alt="Captured Image">
 
     <script>
@@ -34,17 +35,31 @@
         const selfieButton = document.getElementById('selfieButton');
         const capturedImage = document.getElementById('capturedImage');
 
-        // Access the camera
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
-                video.srcObject = stream;
-            })
-            .catch((err) => {
-                console.error("Error accessing the camera: ", err);
-            });
+        let stream;
 
-        // Capture the image
-        selfieButton.addEventListener('click', () => {
+        // Open camera and take a picture
+        selfieButton.addEventListener('click', async () => {
+            try {
+                // Access the camera
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.style.display = 'block';
+
+                // Wait for the video to load and play
+                video.onloadedmetadata = () => {
+                    // Show a prompt to take a picture
+                    setTimeout(() => {
+                        takePicture();
+                    }, 100); // Small delay to ensure the video is ready
+                };
+            } catch (err) {
+                console.error("Error accessing the camera: ", err);
+                alert("Unable to access the camera. Please allow camera permissions.");
+            }
+        });
+
+        // Function to capture the image
+        function takePicture() {
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -55,12 +70,20 @@
             capturedImage.src = imageDataUrl;
             capturedImage.style.display = 'block';
 
-            // Optionally, you can prompt the user to save the image
+            // Stop the camera stream
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            // Prompt the user to save the image
             const link = document.createElement('a');
             link.href = imageDataUrl;
-            link.download = 'selfie.png';
+            link.download = 'selfie.png'; // Default filename
             link.click();
-        });
+
+            // Reset the button text
+            selfieButton.textContent = 'Take Another Selfie';
+        }
     </script>
 </body>
 </html>
