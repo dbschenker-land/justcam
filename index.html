@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Take a Picture</title>
+    <title>Take Picture from Mobile</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,9 +14,6 @@
             max-width: 100%;
             border: 2px solid #ccc;
             border-radius: 10px;
-        }
-        #canvas {
-            display: none;
         }
         #captureButton {
             margin-top: 20px;
@@ -35,55 +32,37 @@
             border: 2px solid #ccc;
             border-radius: 10px;
         }
-        #errorMessage {
-            color: red;
-            margin-top: 20px;
-        }
     </style>
 </head>
 <body>
-    <h1>Take a Picture</h1>
+    <h1>Take Picture from Mobile</h1>
     <video id="video" autoplay playsinline></video>
-    <canvas id="canvas"></canvas>
     <button id="captureButton">Take Picture</button>
     <img id="capturedImage" src="" alt="Captured Image">
-    <div id="errorMessage"></div>
 
     <script>
         const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
         const captureButton = document.getElementById('captureButton');
         const capturedImage = document.getElementById('capturedImage');
-        const errorMessage = document.getElementById('errorMessage');
 
         // Function to start the camera
         async function startCamera() {
             try {
-                // Check if the browser supports mediaDevices
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error("Your browser does not support accessing the camera.");
-                }
-
                 // Access the camera
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = stream;
-
-                // Play the video feed
-                video.onloadedmetadata = () => {
-                    video.play();
-                };
             } catch (err) {
                 console.error("Error accessing the camera: ", err);
-                errorMessage.textContent = `Error: ${err.message}`;
                 alert("Unable to access the camera. Please allow camera permissions.");
             }
         }
 
         // Function to capture the picture
         function capturePicture() {
-            const context = canvas.getContext('2d');
+            const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             // Convert the canvas image to a data URL
