@@ -11,7 +11,6 @@
             margin: 20px;
         }
         #video {
-            display: none;
             max-width: 100%;
             border: 2px solid #ccc;
             border-radius: 10px;
@@ -29,10 +28,6 @@
             border: none;
             border-radius: 5px;
         }
-        #captureButton:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
         #capturedImage {
             margin-top: 20px;
             max-width: 100%;
@@ -48,9 +43,9 @@
 </head>
 <body>
     <h1>Take a Picture</h1>
-    <video id="video" autoplay></video>
+    <video id="video" autoplay playsinline></video>
     <canvas id="canvas"></canvas>
-    <button id="captureButton" disabled>Take Picture</button>
+    <button id="captureButton">Take Picture</button>
     <img id="capturedImage" src="" alt="Captured Image">
     <div id="errorMessage"></div>
 
@@ -61,8 +56,6 @@
         const capturedImage = document.getElementById('capturedImage');
         const errorMessage = document.getElementById('errorMessage');
 
-        let stream;
-
         // Function to start the camera
         async function startCamera() {
             try {
@@ -72,10 +65,8 @@
                 }
 
                 // Access the camera
-                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = stream;
-                video.style.display = 'block';
-                captureButton.disabled = false; // Enable the capture button
 
                 // Play the video feed
                 video.onloadedmetadata = () => {
@@ -100,19 +91,11 @@
             capturedImage.src = imageDataUrl;
             capturedImage.style.display = 'block';
 
-            // Stop the camera stream
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-
             // Prompt the user to save the image
             const link = document.createElement('a');
             link.href = imageDataUrl;
             link.download = 'picture.png'; // Default filename
             link.click();
-
-            // Reset the button text
-            captureButton.textContent = 'Take Another Picture';
         }
 
         // Event listener for the capture button
