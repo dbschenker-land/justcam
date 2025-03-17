@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selfie with Us</title>
+    <style>
+        #video, #canvas {
+            display: none;
+        }
+        #selfieButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #capturedImage {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Selfie with Us</h1>
+    <video id="video" autoplay></video>
+    <canvas id="canvas"></canvas>
+    <button id="selfieButton">Take Selfie</button>
+    <img id="capturedImage" src="" alt="Captured Image">
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const selfieButton = document.getElementById('selfieButton');
+        const capturedImage = document.getElementById('capturedImage');
+
+        // Access the camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((err) => {
+                console.error("Error accessing the camera: ", err);
+            });
+
+        // Capture the image
+        selfieButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas image to a data URL
+            const imageDataUrl = canvas.toDataURL('image/png');
+            capturedImage.src = imageDataUrl;
+            capturedImage.style.display = 'block';
+
+            // Optionally, you can prompt the user to save the image
+            const link = document.createElement('a');
+            link.href = imageDataUrl;
+            link.download = 'selfie.png';
+            link.click();
+        });
+    </script>
+</body>
+</html>
