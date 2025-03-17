@@ -3,63 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selfie with Us</title>
+    <title>Take a Picture</title>
     <style>
-        #video, #canvas {
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #video {
+            display: none;
+            max-width: 100%;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+        }
+        #canvas {
             display: none;
         }
-        #selfieButton {
+        #captureButton {
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        #captureButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
         #capturedImage {
             margin-top: 20px;
             max-width: 100%;
             height: auto;
-            display: none;
+            border: 2px solid #ccc;
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Selfie with Us</h1>
+    <h1>Take a Picture</h1>
     <video id="video" autoplay></video>
     <canvas id="canvas"></canvas>
-    <button id="selfieButton">Open Camera and Take Selfie</button>
+    <button id="captureButton" disabled>Take Picture</button>
     <img id="capturedImage" src="" alt="Captured Image">
 
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const selfieButton = document.getElementById('selfieButton');
+        const captureButton = document.getElementById('captureButton');
         const capturedImage = document.getElementById('capturedImage');
 
         let stream;
 
-        // Open camera and take a picture
-        selfieButton.addEventListener('click', async () => {
+        // Function to start the camera
+        async function startCamera() {
             try {
                 // Access the camera
                 stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = stream;
                 video.style.display = 'block';
-
-                // Wait for the video to load and play
-                video.onloadedmetadata = () => {
-                    // Show a prompt to take a picture
-                    setTimeout(() => {
-                        takePicture();
-                    }, 100); // Small delay to ensure the video is ready
-                };
+                captureButton.disabled = false; // Enable the capture button
             } catch (err) {
                 console.error("Error accessing the camera: ", err);
                 alert("Unable to access the camera. Please allow camera permissions.");
             }
-        });
+        }
 
-        // Function to capture the image
-        function takePicture() {
+        // Function to capture the picture
+        function capturePicture() {
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -78,12 +91,18 @@
             // Prompt the user to save the image
             const link = document.createElement('a');
             link.href = imageDataUrl;
-            link.download = 'selfie.png'; // Default filename
+            link.download = 'picture.png'; // Default filename
             link.click();
 
             // Reset the button text
-            selfieButton.textContent = 'Take Another Selfie';
+            captureButton.textContent = 'Take Another Picture';
         }
+
+        // Event listener for the capture button
+        captureButton.addEventListener('click', capturePicture);
+
+        // Start the camera when the page loads
+        startCamera();
     </script>
 </body>
 </html>
